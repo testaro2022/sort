@@ -7,7 +7,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,38 +29,38 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int n=1;
   String? _num;
-  List<int> numlist=[];
-  List<String> strlist=[];
-  String str="";
-  var _controller = TextEditingController();
-  bool _visibleflag=false;
-  String _order="";
-  void _handleRadio(String? e) => setState(() {_order = e!;});
-  bool _canadd =true;
+  List<int> numlist = [];
+  bool _visibleflag = false; //数字以外を入れられたときに"数字を入れてください"と表示するため
+  String _order = ""; //"up"(昇順)か"down"(降順か)
+  bool _canadd = true; //終了ボタンが押されているか
 
-  void mysort(List<int> l){
-    while(true){
-      bool _flag=false;
-      for(var i=0;  i<l.length-1; i++){
-          if(l[i]>l[i+1]) {
-            var now=l[i];
-            var next=l[i+1];
-            l[i]=next;
-            l[i+1]=now;
-            _flag=true;
-          }
+  void _handleRadio(String? e) => setState(() {
+        _order = e!;
+      });
+  var _controller = TextEditingController();
+
+  void mysort(List<int> l) {
+    while (true) {
+      bool _flag = false;
+      for (var i = 0; i < l.length - 1; i++) {
+        if (l[i] > l[i + 1]) {
+          var now = l[i];
+          var next = l[i + 1];
+          l[i] = next;
+          l[i + 1] = now;
+          _flag = true; //昇順になったら終わり
+        }
       }
-      print(l);
-      if(!_flag) break;
+      // print(l);
+      if (!_flag) break;
     }
   }
 
-  List<String> toStrList(List<int> l){
-    List<String> strlist=[];
-    for(var i in l){
-        strlist.add(i.toString());
+  List<String> toStrList(List<int> l) {
+    List<String> strlist = [];
+    for (var i in l) {
+      strlist.add(i.toString());
     }
     return strlist;
   }
@@ -74,21 +73,19 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Visibility(
-                child: Text("数字を入れてください"),
+              child: Text("数字を入れてください"),
               visible: _visibleflag,
             ),
             Text(
-              "$n番目の数字を入力してください",
-              // "$n番目の数字を入力してください:$_num",
+              "${numlist.length + 1}番目の数字を入力してください",
             ),
             TextField(
               controller: _controller,
               enabled: true,
-              onChanged: (String value){
+              onChanged: (String value) {
                 setState(() {
                   _num = value;
                 });
@@ -97,41 +94,42 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               children: [
                 ElevatedButton(
-                    onPressed: (){
-                      if(!_canadd){
-                        null;
+                  onPressed: () {
+                    if (!_canadd) {
+                      null;
+                    } else {
+                      _controller.clear();
+                      if (RegExp(r"[0-9]").hasMatch(_num!)) {
+                        //数字か判定
+                        numlist.add(int.parse(_num!));
+                        setState(() {
+                          _visibleflag = false;
+                        });
+                      } else {
+                        setState(() {
+                          _visibleflag = true;
+                        });
                       }
-                      else {
-                        _controller.clear();
-                        if (RegExp(r"[0-9]").hasMatch(_num!)) {
-                          numlist.add(int.parse(_num!));
-                          setState(() {
-                            _visibleflag = false;
-                            n=numlist.length+1  ;
-                          });
-                        }
-                        else {
-                          setState(() {
-                            _visibleflag = true;
-                          });
-                        }
-                        _num = null;
-                      }
-                    },
-                    child: Text("入力"),
+                      _num = null;
+                    }
+                  },
+                  child: Text("入力"),
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(
                         !_canadd ? Colors.grey : Colors.blue),
                   ),
                 ),
                 ElevatedButton(
-                    onPressed: (){
+                    onPressed: () {
                       setState(() {
-                        if(_canadd)_canadd=false;else{_canadd=true;}
+                        if (_canadd)
+                          _canadd = false;
+                        else {
+                          _canadd = true;
+                        }
                       });
                     },
-                    child: Text("終了")
-                )
+                    child: Text("終了"))
               ],
             ),
             Row(
@@ -155,14 +153,13 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               children: [
                 ElevatedButton(
-                    onPressed: (){
+                    onPressed: () {
                       setState(() {
-                        if(_order=="up"){
+                        if (_order == "up") {
                           mysort(numlist);
-                        }
-                        else{
+                        } else {
                           mysort(numlist);
-                          numlist=List.from(numlist.reversed);
+                          numlist = List.from(numlist.reversed);
                         }
                       });
                     },
@@ -172,15 +169,12 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               children: [Text("結果を表示します")],
             ),
-            Row(
-              children: [
-                for(final i in toStrList(numlist))
-                  Text(i+","),
-              ]
-            ),
+            Row(children: [
+              for (final i in toStrList(numlist)) Text(i + ","),
+            ]),
           ],
         ),
       ),
-      );
+    );
   }
 }
